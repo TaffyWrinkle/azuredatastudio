@@ -50,6 +50,8 @@ export class TransformMarkdownAction extends Action {
 
 export class MarkdownTextTransformer {
 
+	private _selectImageDialog: SelectImageDialog;
+
 	constructor(
 		private _notebookService: INotebookService,
 		private _cellModel: ICellModel,
@@ -78,8 +80,11 @@ export class MarkdownTextTransformer {
 			let beginInsertedText: string;
 			let endInsertedText: string;
 			if (type === MarkdownButtonType.IMAGE) {
-				let selectionDialog = this._instantiationService.createInstance(SelectImageDialog);
-				[beginInsertedText, endInsertedText] = await selectionDialog.open();
+				if (!this._selectImageDialog) {
+					this._selectImageDialog = this._instantiationService.createInstance(SelectImageDialog);
+					this._selectImageDialog.render();
+				}
+				[beginInsertedText, endInsertedText] = await this._selectImageDialog.open();
 			} else {
 				beginInsertedText = getStartTextToInsert(type);
 				endInsertedText = getEndTextToInsert(type);

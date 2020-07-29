@@ -64,6 +64,7 @@ export class CellModel extends Disposable implements ICellModel {
 	private _showPreview: boolean = true;
 	private _onCellPreviewChanged = new Emitter<boolean>();
 	private _isCommandExecutionSettingEnabled: boolean = false;
+	public cellSourceChanged = false;
 
 	constructor(cellData: nb.ICellContents,
 		private _options: ICellModelOptions,
@@ -234,6 +235,7 @@ export class CellModel extends Disposable implements ICellModel {
 		if (this._source !== newSource) {
 			this._source = newSource;
 			this.sendChangeToNotebook(NotebookChangeType.CellSourceUpdated);
+			this.cellSourceChanged = true;
 		}
 		this._modelContentChangedEvent = undefined;
 	}

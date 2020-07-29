@@ -3,23 +3,23 @@
  *  Licensed under the Source EULA. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { localize } from 'vs/nls';
+import { attachButtonStyler } from 'sql/platform/theme/common/styler';
+import { SelectBox } from 'sql/base/browser/ui/selectBox/selectBox';
 import { Modal } from 'sql/workbench/browser/modal/modal';
-import { IWorkbenchLayoutService } from 'vs/workbench/services/layout/browser/layoutService';
-import { IAdsTelemetryService } from 'sql/platform/telemetry/common/telemetry';
+import * as DialogHelper from 'sql/workbench/browser/modal/dialogHelper';
+import * as TelemetryKeys from 'sql/platform/telemetry/common/telemetryKeys';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
+import { localize } from 'vs/nls';
+import { IContextViewService } from 'vs/platform/contextview/browser/contextView';
+import * as DOM from 'vs/base/browser/dom';
 import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService';
+import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { ILogService } from 'vs/platform/log/common/log';
 import { ITextResourcePropertiesService } from 'vs/editor/common/services/textResourceConfigurationService';
+import { IAdsTelemetryService } from 'sql/platform/telemetry/common/telemetry';
 import { attachModalDialogStyler } from 'sql/workbench/common/styler';
-import { attachButtonStyler } from 'vs/platform/theme/common/styler';
+import { ILayoutService } from 'vs/platform/layout/browser/layoutService';
 import { Deferred } from 'sql/base/common/promise';
-import * as TelemetryKeys from 'sql/platform/telemetry/common/telemetryKeys';
-import * as DOM from 'vs/base/browser/dom';
-import * as DialogHelper from 'sql/workbench/browser/modal/dialogHelper';
-import { SelectBox } from 'sql/base/browser/ui/selectBox/selectBox';
-import { IContextViewService } from 'vs/platform/contextview/browser/contextView';
 
 export class SelectImageDialog extends Modal {
 	private _selectionComplete: Deferred<string[]>;
@@ -29,16 +29,26 @@ export class SelectImageDialog extends Modal {
 	private readonly embedImageLabel = localize('selectImageDialog.embeddedImage', "Embedded image");
 
 	constructor(
-		@IWorkbenchLayoutService layoutService: IWorkbenchLayoutService,
 		@IThemeService themeService: IThemeService,
+		@ILayoutService layoutService: ILayoutService,
 		@IAdsTelemetryService telemetryService: IAdsTelemetryService,
 		@IContextKeyService contextKeyService: IContextKeyService,
+		@IContextViewService private contextViewService: IContextViewService,
 		@IClipboardService clipboardService: IClipboardService,
 		@ILogService logService: ILogService,
-		@ITextResourcePropertiesService textResourcePropertiesService: ITextResourcePropertiesService,
-		@IContextViewService private contextViewService: IContextViewService
+		@ITextResourcePropertiesService textResourcePropertiesService: ITextResourcePropertiesService
 	) {
-		super(localize('selectImageDialog.title', "Select image type"), TelemetryKeys.SelectImage, telemetryService, layoutService, clipboardService, themeService, logService, textResourcePropertiesService, contextKeyService, undefined);
+		super(
+			localize('selectImageDialog.title', "Select image type"),
+			TelemetryKeys.SelectImage,
+			telemetryService,
+			layoutService,
+			clipboardService,
+			themeService,
+			logService,
+			textResourcePropertiesService,
+			contextKeyService,
+			undefined);
 		this._selectionComplete = new Deferred<string[]>();
 	}
 

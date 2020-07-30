@@ -3,10 +3,10 @@
  *  Licensed under the Source EULA. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import 'vs/css!./media/selectImageDialog';
 import { attachButtonStyler } from 'sql/platform/theme/common/styler';
 import { SelectBox } from 'sql/base/browser/ui/selectBox/selectBox';
 import { Modal } from 'sql/workbench/browser/modal/modal';
-import * as DialogHelper from 'sql/workbench/browser/modal/dialogHelper';
 import * as TelemetryKeys from 'sql/platform/telemetry/common/telemetryKeys';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { localize } from 'vs/nls';
@@ -20,13 +20,15 @@ import { IAdsTelemetryService } from 'sql/platform/telemetry/common/telemetry';
 import { attachModalDialogStyler } from 'sql/workbench/common/styler';
 import { ILayoutService } from 'vs/platform/layout/browser/layoutService';
 import { Deferred } from 'sql/base/common/promise';
+import { InputBox } from 'sql/base/browser/ui/inputBox/inputBox';
 
 export class SelectImageDialog extends Modal {
 	private _selectionComplete: Deferred<string[]>;
 	private _imageTypeSelectBox: SelectBox;
+	private _imagePathInputBox: InputBox;
 
-	private readonly imageLinkLabel = localize('selectImageDialog.imageLink', "Image link");
-	private readonly embedImageLabel = localize('selectImageDialog.embeddedImage', "Embedded image");
+	private readonly localImageLabel = localize('selectImageDialog.localImage', "Local");
+	private readonly remoteImageLabel = localize('selectImageDialog.removeImage', "Remote");
 
 	constructor(
 		@IThemeService themeService: IThemeService,
@@ -39,7 +41,7 @@ export class SelectImageDialog extends Modal {
 		@ITextResourcePropertiesService textResourcePropertiesService: ITextResourcePropertiesService
 	) {
 		super(
-			localize('selectImageDialog.title', "Select image type"),
+			localize('selectImageDialog.title', "Add image"),
 			TelemetryKeys.SelectImage,
 			telemetryService,
 			layoutService,
@@ -73,18 +75,27 @@ export class SelectImageDialog extends Modal {
 
 	protected renderBody(container: HTMLElement) {
 		const body = DOM.append(container, DOM.$('div.select-image-dialog'));
-		let typeOptions = [this.imageLinkLabel, this.embedImageLabel];
 
-		let typeLabel = localize('selectImageDialog.type', "Image link type");
-		this._imageTypeSelectBox = new SelectBox(typeOptions, typeOptions[0], this.contextViewService, undefined, { ariaLabel: typeLabel });
-		let row = DialogHelper.appendRow(body, typeLabel, 'selectImage-label', 'selectImage-input');
-		DialogHelper.appendInputSelectBox(row, this._imageTypeSelectBox);
+		let description = DOM.$('div.select-image-row');
+		description.innerText = localize('selectImageDialog.description', "Select local or remote image to add to your notebook.");
+		DOM.append(body, description);
 
-		const linkImageContainer = DOM.append(body, DOM.$('div'));
-		DOM.append(linkImageContainer, DOM.$('div'));
+		let selectBoxLabel = DOM.$('div.select-image-label.select-image-row');
+		selectBoxLabel.innerText = localize('selectImageDialog.locationLabel', "Image location");
+		DOM.append(body, selectBoxLabel);
 
-		const embedImageContainer = DOM.append(body, DOM.$('div'));
-		DOM.append(embedImageContainer, DOM.$('div'));
+		let selectBoxContainer = DOM.$('div.select-image-input.select-image-row');
+		let typeOptions = [this.localImageLabel, this.remoteImageLabel];
+		this._imageTypeSelectBox = new SelectBox(typeOptions, typeOptions[0], this.contextViewService);
+		this._imageTypeSelectBox.render(selectBoxContainer);
+		DOM.append(body, selectBoxContainer);
+
+		let inputBoxLabel = DOM.$('div.select-image-label.select-image-row');
+		inputBoxLabel.innerText = localize('selectImageDialog.pathLabel', "Image path");
+		DOM.append(body, inputBoxLabel);
+
+		const inputBoxContainer = DOM.append(body, DOM.$('div.select-image-input.select-image-row'));
+		this._imagePathInputBox = new InputBox(DOM.append(inputBoxContainer, DOM.$('div.select-image-input')), this.contextViewService);
 	}
 
 	protected layout(height?: number): void {
@@ -92,12 +103,7 @@ export class SelectImageDialog extends Modal {
 
 	public ok() {
 		this.hide();
-		let imageType = this._imageTypeSelectBox.value;
-		if (imageType === this.imageLinkLabel) {
-			this._selectionComplete.resolve(['<a href=" ">', '</a>']);
-		} else {
-			this._selectionComplete.resolve(['<img src=" " alt="', '">']);
-		}
+		this._selectionComplete.resolve([`<img src="${this._imagePathInputBox.value}">`]);
 	}
 
 	public cancel() {

@@ -9,12 +9,18 @@
 	flex-direction: column;
 	overflow-x: hidden;
 	overflow-y: auto;
+	margin: 15px;
 }
 
-.select-image-dialog .selectImage-label {
+.select-image-row {
+	padding: 5px 0px;
+}
+
+.select-image-dialog .select-image-label {
+	font-weight: bold;
 	width: 120px;
 }
 
-.select-image-dialog .selectImage-input {
+.select-image-dialog .select-image-input {
 	width: 200px;
 }

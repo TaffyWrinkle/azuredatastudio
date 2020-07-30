@@ -94,7 +94,7 @@ export class SelectImageDialog extends Modal {
 		inputBoxLabel.innerText = localize('selectImageDialog.pathLabel', "Image path");
 		DOM.append(body, inputBoxLabel);
 
-		const inputBoxContainer = DOM.append(body, DOM.$('div.select-image-input.select-image-row'));
+		const inputBoxContainer = DOM.append(body, DOM.$('div.select-image-row'));
 		this._imagePathInputBox = new InputBox(DOM.append(inputBoxContainer, DOM.$('div.select-image-input')), this.contextViewService);
 	}
 

@@ -84,7 +84,8 @@ export class MarkdownTextTransformer {
 					this._selectImageDialog = this._instantiationService.createInstance(SelectImageDialog);
 					this._selectImageDialog.render();
 				}
-				[beginInsertedText, endInsertedText] = await this._selectImageDialog.open();
+				let selectImageOptions = await this._selectImageDialog.open();
+				beginInsertedText = selectImageOptions.imageHtml;
 			} else {
 				beginInsertedText = getStartTextToInsert(type);
 				endInsertedText = getEndTextToInsert(type);

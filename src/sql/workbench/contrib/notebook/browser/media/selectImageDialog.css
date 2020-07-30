@@ -13,25 +13,14 @@
 }
 
 .select-image-row {
-	padding-bottom: 5px;
+	padding-bottom: 10px;
 }
 
 .select-image-dialog .select-image-label {
-	font-weight: bold;
+	font-weight: 600;
 	width: 120px;
 }
 
 .select-image-dialog .select-image-input {
 	width: 300px;
-}
-
-.select-image-input .monaco-dropdown .monaco-action-bar .action-label.codicon.dropdown-arrow {
-	background-position: 50%;
-	background-size: cover;
-	display: inline-block;
-}
-
-.select-image-input .monaco-inputbox .monaco-action-bar .action-item .codicon {
-	width: 8px;
-	height: 8px;
 }

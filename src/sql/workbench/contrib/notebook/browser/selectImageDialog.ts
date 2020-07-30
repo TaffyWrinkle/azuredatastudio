@@ -23,13 +23,21 @@ import { Deferred } from 'sql/base/common/promise';
 import { InputBox } from 'sql/base/browser/ui/inputBox/inputBox';
 import * as styler from 'vs/platform/theme/common/styler';
 import { Button } from 'sql/base/browser/ui/button/button';
+import { Checkbox } from 'sql/base/browser/ui/checkbox/checkbox';
+
+export interface SelectImageOptions {
+	imageHtml: string;
+	imagePath?: string;
+	embedImage?: boolean;
+}
 
 export class SelectImageDialog extends Modal {
-	private _selectionComplete: Deferred<string[]>;
+	private _selectionComplete: Deferred<SelectImageOptions>;
 	private _okButton: Button;
 	private _cancelButton: Button;
 	private _imageTypeSelectBox: SelectBox;
 	private _imagePathInputBox: InputBox;
+	private _embedImageCheckbox: Checkbox;
 
 	private readonly localImageLabel = localize('selectImageDialog.localImage', "Local");
 	private readonly remoteImageLabel = localize('selectImageDialog.removeImage', "Remote");
@@ -55,13 +63,13 @@ export class SelectImageDialog extends Modal {
 			textResourcePropertiesService,
 			contextKeyService,
 			undefined);
-		this._selectionComplete = new Deferred<string[]>();
+		this._selectionComplete = new Deferred<SelectImageOptions>();
 	}
 
 	/**
 	 * Opens the dialog and returns a promise for what options the user chooses.
 	 */
-	public open(): Promise<string[]> {
+	public open(): Promise<SelectImageOptions> {
 		this.show();
 		return this._selectionComplete.promise;
 	}
@@ -115,14 +123,24 @@ export class SelectImageDialog extends Modal {
 				placeholder: localize('selectImageDialog.pathPlaceholder', "Enter path here"),
 				ariaLabel: inputBoxLabel.innerText
 			});
+
+		let checkboxLabel = localize('selectImageDialog.embedImageLabel', "Embed image in notebook");
+		const checkboxContainer = DOM.append(body, DOM.$('.select-image-row'));
+		this._embedImageCheckbox = new Checkbox(checkboxContainer, {
+			label: checkboxLabel,
+			checked: false,
+			onChange: (viaKeyboard) => { },
+			ariaLabel: checkboxLabel
+		});
 	}
 
 	private registerListeners(): void {
 		// Theme styler
-		this._register(styler.attachSelectBoxStyler(this._imageTypeSelectBox, this._themeService));
-		this._register(styler.attachInputBoxStyler(this._imagePathInputBox, this._themeService));
 		this._register(attachButtonStyler(this._okButton, this._themeService));
 		this._register(attachButtonStyler(this._cancelButton, this._themeService));
+		this._register(styler.attachSelectBoxStyler(this._imageTypeSelectBox, this._themeService));
+		this._register(styler.attachInputBoxStyler(this._imagePathInputBox, this._themeService));
+		this._register(styler.attachCheckboxStyler(this._embedImageCheckbox, this._themeService));
 	}
 
 	protected layout(height?: number): void {
@@ -130,11 +148,19 @@ export class SelectImageDialog extends Modal {
 
 	public ok() {
 		this.hide();
-		this._selectionComplete.resolve([`<img src="${this._imagePathInputBox.value}">`]);
+		this._selectionComplete.resolve({
+			imageHtml: `<img src="${this._imagePathInputBox.value}">`,
+			imagePath: this._imagePathInputBox.value,
+			embedImage: this._embedImageCheckbox.checked
+		});
 	}
 
 	public cancel() {
 		this.hide();
-		this._selectionComplete.resolve(['', '']);
+		this._selectionComplete.resolve({
+			imageHtml: '',
+			imagePath: undefined,
+			embedImage: undefined
+		});
 	}
 }

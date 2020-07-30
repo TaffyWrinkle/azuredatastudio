@@ -12,15 +12,21 @@
 	margin: 15px;
 }
 
-.select-image-row {
+.select-image-dialog .select-image-row {
 	padding-bottom: 10px;
+	display: flex;
+	flex-direction: row;
+	width: 300px;
 }
 
 .select-image-dialog .select-image-label {
 	font-weight: 600;
-	width: 120px;
 }
 
-.select-image-dialog .select-image-input {
-	width: 300px;
+.select-image-dialog .monaco-inputbox {
+	width: 100%
+}
+
+.select-image-dialog .select-image-browse-button {
+	margin-left: 5px;
 }

@@ -37,6 +37,7 @@ export class SelectImageDialog extends Modal {
 	private _cancelButton: Button;
 	private _imageTypeSelectBox: SelectBox;
 	private _imagePathInputBox: InputBox;
+	private _browseImagesButton: Button;
 	private _embedImageCheckbox: Checkbox;
 
 	private readonly localImageLabel = localize('selectImageDialog.localImage', "Local");
@@ -94,11 +95,11 @@ export class SelectImageDialog extends Modal {
 		description.innerText = localize('selectImageDialog.description', "Select local or remote image to add to your notebook.");
 		DOM.append(body, description);
 
-		let selectBoxLabel = DOM.$('.select-image-label.select-image-row');
+		let selectBoxLabel = DOM.$('.select-image-row.select-image-label');
 		selectBoxLabel.innerText = localize('selectImageDialog.locationLabel', "Image location");
 		DOM.append(body, selectBoxLabel);
 
-		let selectBoxContainer = DOM.$('.select-image-input.select-image-row');
+		let selectBoxContainer = DOM.$('.select-image-row.select-image-input');
 		let typeOptions = [this.localImageLabel, this.remoteImageLabel];
 		this._imageTypeSelectBox = new SelectBox(
 			typeOptions,
@@ -111,7 +112,7 @@ export class SelectImageDialog extends Modal {
 		this._imageTypeSelectBox.render(selectBoxContainer);
 		DOM.append(body, selectBoxContainer);
 
-		let inputBoxLabel = DOM.$('.select-image-label.select-image-row');
+		let inputBoxLabel = DOM.$('.select-image-row.select-image-label');
 		inputBoxLabel.innerText = localize('selectImageDialog.pathLabel', "Image path");
 		DOM.append(body, inputBoxLabel);
 
@@ -123,6 +124,12 @@ export class SelectImageDialog extends Modal {
 				placeholder: localize('selectImageDialog.pathPlaceholder', "Enter path here"),
 				ariaLabel: inputBoxLabel.innerText
 			});
+
+		const browseButtonContainer = DOM.$('.select-image-browse-button');
+		DOM.append(inputBoxContainer, browseButtonContainer);
+		this._browseImagesButton = new Button(browseButtonContainer);
+		this._browseImagesButton.label = localize('selectImageDialog.browseLabel', "Browse");
+		this._browseImagesButton.onDidClick(() => this.handleBrowse());
 
 		let checkboxLabel = localize('selectImageDialog.embedImageLabel', "Embed image in notebook");
 		const checkboxContainer = DOM.append(body, DOM.$('.select-image-row'));
@@ -140,6 +147,7 @@ export class SelectImageDialog extends Modal {
 		this._register(attachButtonStyler(this._cancelButton, this._themeService));
 		this._register(styler.attachSelectBoxStyler(this._imageTypeSelectBox, this._themeService));
 		this._register(styler.attachInputBoxStyler(this._imagePathInputBox, this._themeService));
+		this._register(styler.attachButtonStyler(this._embedImageCheckbox, this._themeService));
 		this._register(styler.attachCheckboxStyler(this._embedImageCheckbox, this._themeService));
 	}
 
@@ -162,5 +170,9 @@ export class SelectImageDialog extends Modal {
 			imagePath: undefined,
 			embedImage: undefined
 		});
+	}
+
+	private handleBrowse(): void {
+
 	}
 }

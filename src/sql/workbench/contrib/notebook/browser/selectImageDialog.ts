@@ -21,9 +21,13 @@ import { attachModalDialogStyler } from 'sql/workbench/common/styler';
 import { ILayoutService } from 'vs/platform/layout/browser/layoutService';
 import { Deferred } from 'sql/base/common/promise';
 import { InputBox } from 'sql/base/browser/ui/inputBox/inputBox';
+import * as styler from 'vs/platform/theme/common/styler';
+import { Button } from 'sql/base/browser/ui/button/button';
 
 export class SelectImageDialog extends Modal {
 	private _selectionComplete: Deferred<string[]>;
+	private _okButton: Button;
+	private _cancelButton: Button;
 	private _imageTypeSelectBox: SelectBox;
 	private _imagePathInputBox: InputBox;
 
@@ -66,36 +70,59 @@ export class SelectImageDialog extends Modal {
 		super.render();
 		attachModalDialogStyler(this, this._themeService);
 
-		let okButton = this.addFooterButton(localize('selectImageDialog.ok', "OK"), () => this.ok());
-		attachButtonStyler(okButton, this._themeService);
+		this._okButton = this.addFooterButton(localize('selectImageDialog.ok', "OK"), () => this.ok());
+		attachButtonStyler(this._okButton, this._themeService);
 
-		let cancelButton = this.addFooterButton(localize('selectImageDialog.cancel', "Cancel"), () => this.cancel());
-		attachButtonStyler(cancelButton, this._themeService);
+		this._cancelButton = this.addFooterButton(localize('selectImageDialog.cancel', "Cancel"), () => this.cancel());
+		attachButtonStyler(this._cancelButton, this._themeService);
+
+		this.registerListeners();
 	}
 
 	protected renderBody(container: HTMLElement) {
-		const body = DOM.append(container, DOM.$('div.select-image-dialog'));
+		const body = DOM.append(container, DOM.$('.select-image-dialog'));
 
-		let description = DOM.$('div.select-image-row');
+		let description = DOM.$('.select-image-row');
 		description.innerText = localize('selectImageDialog.description', "Select local or remote image to add to your notebook.");
 		DOM.append(body, description);
 
-		let selectBoxLabel = DOM.$('div.select-image-label.select-image-row');
+		let selectBoxLabel = DOM.$('.select-image-label.select-image-row');
 		selectBoxLabel.innerText = localize('selectImageDialog.locationLabel', "Image location");
 		DOM.append(body, selectBoxLabel);
 
-		let selectBoxContainer = DOM.$('div.select-image-input.select-image-row');
+		let selectBoxContainer = DOM.$('.select-image-input.select-image-row');
 		let typeOptions = [this.localImageLabel, this.remoteImageLabel];
-		this._imageTypeSelectBox = new SelectBox(typeOptions, typeOptions[0], this.contextViewService);
+		this._imageTypeSelectBox = new SelectBox(
+			typeOptions,
+			typeOptions[0],
+			this.contextViewService,
+			undefined,
+			{
+				ariaLabel: selectBoxLabel.innerText
+			});
 		this._imageTypeSelectBox.render(selectBoxContainer);
 		DOM.append(body, selectBoxContainer);
 
-		let inputBoxLabel = DOM.$('div.select-image-label.select-image-row');
+		let inputBoxLabel = DOM.$('.select-image-label.select-image-row');
 		inputBoxLabel.innerText = localize('selectImageDialog.pathLabel', "Image path");
 		DOM.append(body, inputBoxLabel);
 
-		const inputBoxContainer = DOM.append(body, DOM.$('div.select-image-row'));
-		this._imagePathInputBox = new InputBox(DOM.append(inputBoxContainer, DOM.$('div.select-image-input')), this.contextViewService);
+		const inputBoxContainer = DOM.append(body, DOM.$('.select-image-row.select-image-input'));
+		this._imagePathInputBox = new InputBox(
+			inputBoxContainer,
+			this.contextViewService,
+			{
+				placeholder: localize('selectImageDialog.pathPlaceholder', "Enter path here"),
+				ariaLabel: inputBoxLabel.innerText
+			});
+	}
+
+	private registerListeners(): void {
+		// Theme styler
+		this._register(styler.attachSelectBoxStyler(this._imageTypeSelectBox, this._themeService));
+		this._register(styler.attachInputBoxStyler(this._imagePathInputBox, this._themeService));
+		this._register(attachButtonStyler(this._okButton, this._themeService));
+		this._register(attachButtonStyler(this._cancelButton, this._themeService));
 	}
 
 	protected layout(height?: number): void {

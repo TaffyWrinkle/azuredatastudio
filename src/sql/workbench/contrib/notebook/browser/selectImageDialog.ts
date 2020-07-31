@@ -131,6 +131,14 @@ export class SelectImageDialog extends Modal {
 		this._browseImagesButton.label = localize('selectImageDialog.browseLabel', "Browse");
 		this._browseImagesButton.onDidClick(() => this.handleBrowse());
 
+		this._imageTypeSelectBox.onDidSelect(selectedValue => {
+			if (selectedValue.selected === this.remoteImageLabel) {
+				this._browseImagesButton.element.style.display = 'none';
+			} else {
+				this._browseImagesButton.element.style.display = 'block';
+			}
+		});
+
 		let checkboxLabel = localize('selectImageDialog.embedImageLabel', "Embed image in notebook");
 		const checkboxContainer = DOM.append(body, DOM.$('.select-image-row'));
 		this._embedImageCheckbox = new Checkbox(checkboxContainer, {

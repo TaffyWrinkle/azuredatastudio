@@ -21,6 +21,7 @@
 
 .select-image-dialog .select-image-label {
 	font-weight: 600;
+	padding-bottom: 2px;
 }
 
 .select-image-dialog .monaco-inputbox {

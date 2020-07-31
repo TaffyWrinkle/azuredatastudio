@@ -36,12 +36,15 @@ export class SelectImageDialog extends Modal {
 	private _okButton: Button;
 	private _cancelButton: Button;
 	private _imageTypeSelectBox: SelectBox;
+	private _imagePathLabel: HTMLElement;
 	private _imagePathInputBox: InputBox;
 	private _browseImagesButton: Button;
 	private _embedImageCheckbox: Checkbox;
 
-	private readonly localImageLabel = localize('selectImageDialog.localImage', "Local");
-	private readonly remoteImageLabel = localize('selectImageDialog.removeImage', "Remote");
+	private readonly localImageType = localize('selectImageDialog.localImageType', "Local");
+	private readonly remoteImageType = localize('selectImageDialog.remoteImageType', "Remote");
+	private readonly localImagePathLabel = localize('selectImageDialog.localPathLabel', "Image local path");
+	private readonly remoteImagePathLabel = localize('selectImageDialog.remotePathLabel', "Image remote path");
 
 	constructor(
 		@IThemeService themeService: IThemeService,
@@ -95,12 +98,12 @@ export class SelectImageDialog extends Modal {
 		description.innerText = localize('selectImageDialog.description', "Select local or remote image to add to your notebook.");
 		DOM.append(body, description);
 
-		let selectBoxLabel = DOM.$('.select-image-row.select-image-label');
+		let selectBoxLabel = DOM.$('.select-image-label');
 		selectBoxLabel.innerText = localize('selectImageDialog.locationLabel', "Image location");
 		DOM.append(body, selectBoxLabel);
 
 		let selectBoxContainer = DOM.$('.select-image-row.select-image-input');
-		let typeOptions = [this.localImageLabel, this.remoteImageLabel];
+		let typeOptions = [this.localImageType, this.remoteImageType];
 		this._imageTypeSelectBox = new SelectBox(
 			typeOptions,
 			typeOptions[0],
@@ -112,9 +115,9 @@ export class SelectImageDialog extends Modal {
 		this._imageTypeSelectBox.render(selectBoxContainer);
 		DOM.append(body, selectBoxContainer);
 
-		let inputBoxLabel = DOM.$('.select-image-row.select-image-label');
-		inputBoxLabel.innerText = localize('selectImageDialog.pathLabel', "Image path");
-		DOM.append(body, inputBoxLabel);
+		this._imagePathLabel = DOM.$('.select-image-label');
+		this._imagePathLabel.innerText = this.localImagePathLabel;
+		DOM.append(body, this._imagePathLabel);
 
 		const inputBoxContainer = DOM.append(body, DOM.$('.select-image-row.select-image-input'));
 		this._imagePathInputBox = new InputBox(
@@ -122,7 +125,7 @@ export class SelectImageDialog extends Modal {
 			this.contextViewService,
 			{
 				placeholder: localize('selectImageDialog.pathPlaceholder', "Enter path here"),
-				ariaLabel: inputBoxLabel.innerText
+				ariaLabel: this._imagePathLabel.innerText
 			});
 
 		const browseButtonContainer = DOM.$('.select-image-browse-button');
@@ -132,10 +135,12 @@ export class SelectImageDialog extends Modal {
 		this._browseImagesButton.onDidClick(() => this.handleBrowse());
 
 		this._imageTypeSelectBox.onDidSelect(selectedValue => {
-			if (selectedValue.selected === this.remoteImageLabel) {
+			if (selectedValue.selected === this.remoteImageType) {
 				this._browseImagesButton.element.style.display = 'none';
+				this._imagePathLabel.innerText = this.remoteImagePathLabel;
 			} else {
 				this._browseImagesButton.element.style.display = 'block';
+				this._imagePathLabel.innerText = this.localImagePathLabel;
 			}
 		});
 
